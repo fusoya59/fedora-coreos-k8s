@@ -1,0 +1,17 @@
+[Unit]
+Description=kubelet: The Kubernetes Node Agent
+Documentation=https://kubernetes.io/docs/home/
+After=network-online.target docker.service etcd-member.service
+Wants=network-online.target
+
+[Service]
+Restart=always
+StartLimitInterval=0
+RestartSec=10
+
+ExecStart=/usr/local/bin/kubelet --kubeconfig={K8S_BASE_PATH}/kubelet.yaml \
+    --config={K8S_BASE_PATH}/kubelet-config.yaml \
+    --network-plugin=cni
+
+[Install]
+WantedBy=multi-user.target

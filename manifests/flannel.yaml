@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: Pod
+metadata:  
+  labels:
+    app: flannel
+    tier: node
+  name: flannel
+  namespace: kube-system
+spec:
+  containers:
+  - name: kube-flannel
+    image: quay.io/coreos/flannel:{FLANNEL_VERSION}
+    command:
+    - /opt/bin/flanneld
+    securityContext:
+      privileged: true
+      runAsUser: 0
+    args:
+    - --ip-masq
+    - --iface={HOST_IP}
+    - --kubeconfig-file={K8S_BASE_PATH}/admin.yaml    
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "50Mi"
+      limits:
+        cpu: "100m"
+        memory: "50Mi"
+    volumeMounts:
+    - name: run
+      mountPath: /run/flannel
+    - name: plugins
+      mountPath: /opt/cni/bin
+    - name: flannel-cfg
+      mountPath: /etc/kube-flannel
+    - mountPath: {K8S_BASE_PATH}/admin.yaml
+      name: kubeconfig
+      readOnly: true
+    - mountPath: {K8S_SSL_PATH}
+      name: k8s-certs
+      readOnly: true
+  hostNetwork: true  
+  volumes:
+  - name: run
+    hostPath:
+      path: /run/flannel
+      type: DirectoryOrCreate
+  - name: plugins
+    hostPath:
+      path: /opt/cni/bin
+      type: DirectoryOrCreate
+  - name: cni
+    hostPath:
+      path: /etc/cni/net.d
+      type: DirectoryOrCreate
+  - name: flannel-cfg
+    hostPath:
+      path: /etc/kubernetes/flannel
+      type: DirectoryOrCreate
+  - hostPath:
+      path: {K8S_BASE_PATH}/admin.yaml
+    name: kubeconfig
+  - hostPath:
+      path: {K8S_SSL_PATH}
+      type: DirectoryOrCreate
+    name: k8s-certs

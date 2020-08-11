@@ -1,0 +1,19 @@
+variant: fcos
+version: 1.0.0
+passwd:
+  users:
+    - name: tempadmin
+      ssh_authorized_keys:
+        - "{SOME_SSH_KEY}"
+      groups: [ sudo, docker ]
+storage:
+  files:
+    - path: /etc/hostname
+      overwrite: true
+      contents:
+        inline: {SOME_HOST_NAME}
+      mode: 420
+systemd:
+  units:
+    - name: docker.service
+      enabled: true

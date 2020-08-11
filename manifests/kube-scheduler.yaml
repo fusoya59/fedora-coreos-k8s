@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Pod
+metadata:  
+  labels:
+    component: kube-scheduler
+    tier: control-plane
+  name: kube-scheduler
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - kube-scheduler
+    - --master={API_SERVER_ENDPOINT}
+    - --bind-address={HOST_IP}
+    - --kubeconfig={K8S_BASE_PATH}/scheduler.yaml
+    - --leader-elect=true
+    - --authentication-kubeconfig={K8S_BASE_PATH}/scheduler.yaml
+    - --authorization-kubeconfig={K8S_BASE_PATH}/scheduler.yaml
+    - --tls-cert-file={K8S_SSL_PATH}/scheduler.pem
+    - --tls-private-key-file={K8S_SSL_PATH}/scheduler-key.pem
+    image: gcr.io/google-containers/hyperkube:{K8S_VERSION}
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 8
+      httpGet:
+        host: 127.0.0.1
+        path: /healthz
+        port: 10251
+        scheme: HTTP
+      initialDelaySeconds: 15
+      timeoutSeconds: 15
+    name: kube-scheduler
+    resources:
+      requests:
+        cpu: 100m
+    volumeMounts:
+    - mountPath: {K8S_BASE_PATH}/scheduler.yaml
+      name: kubeconfig
+      readOnly: true
+    - mountPath: {K8S_SSL_PATH}
+      name: k8s-certs
+      readOnly: true
+  hostNetwork: true
+  priorityClassName: system-cluster-critical
+  volumes:
+  - hostPath:
+      path: {K8S_BASE_PATH}/scheduler.yaml
+      type: FileOrCreate
+    name: kubeconfig
+  - hostPath:
+      path: {K8S_SSL_PATH}
+      type: DirectoryOrCreate
+    name: k8s-certs

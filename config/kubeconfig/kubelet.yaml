@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Config
+clusters:
+- name: kubernetes
+  cluster:
+    certificate-authority: {K8S_SSL_PATH}/ca.pem
+    server: {API_SERVER_ENDPOINT}
+users:
+- name: system:node:{HOST_NAME}
+  user:
+    client-certificate: {K8S_SSL_PATH}/kubelet.pem
+    client-key: {K8S_SSL_PATH}/kubelet-key.pem
+contexts:
+- context:
+    cluster: kubernetes
+    user: system:node:{HOST_NAME}
+  name: system:node:{HOST_NAME}@kubernetes
+current-context: system:node:{HOST_NAME}@kubernetes

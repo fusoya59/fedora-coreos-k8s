@@ -1,0 +1,24 @@
+[Unit]
+Description=Run single node etcd
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+ExecStartPre=mkdir -p /var/lib/etcd
+ExecStart=/bin/docker run --net=host --rm --name etcd \
+  -v /var/lib/etcd:/var/lib/etcd:z \
+  quay.io/coreos/etcd:latest \
+    etcd \
+    --advertise-client-urls=http://{HOST_IP}:2379 \
+    --data-dir=/var/lib/etcd \
+    --initial-advertise-peer-urls=http://{HOST_IP}:2380 \
+    --initial-cluster={HOST_NAME}=http://{HOST_IP}:2380 \
+    --listen-client-urls=http://127.0.0.1:2379,http://{HOST_IP}:2379 \
+    --listen-peer-urls=http://{HOST_IP}:2380 \
+    --name={HOST_NAME} \
+    --snapshot-count=10000
+
+ExecStop=/bin/docker stop etcd
+
+[Install]
+WantedBy=multi-user.target

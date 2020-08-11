@@ -1,0 +1,1 @@
+{"Network": "{POD_CIDR}","Backend": {"Type": "host-gw"}}

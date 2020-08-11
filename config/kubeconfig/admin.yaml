@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Config
+clusters:
+- name: kubernetes
+  cluster:
+    certificate-authority: {K8S_SSL_PATH}/ca.pem
+    server: {API_SERVER_ENDPOINT}
+users:
+- name: kube-admin
+  user:
+    client-certificate: {K8S_SSL_PATH}/admin.pem
+    client-key: {K8S_SSL_PATH}/admin-key.pem
+contexts:
+- context:
+    cluster: kubernetes
+    user: kube-admin
+  name: admin-context
+current-context: admin-context

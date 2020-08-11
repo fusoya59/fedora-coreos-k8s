@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Pod
+metadata:  
+  labels:
+    component: kube-controller-manager
+    tier: control-plane
+  name: kube-controller-manager
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - kube-controller-manager
+    - --master={API_SERVER_ENDPOINT}
+    - --authentication-kubeconfig={K8S_BASE_PATH}/controller-manager.yaml
+    - --authorization-kubeconfig={K8S_BASE_PATH}/controller-manager.yaml
+    - --client-ca-file={K8S_SSL_PATH}/ca.pem
+    - --cluster-signing-cert-file={K8S_SSL_PATH}/ca.pem
+    - --cluster-signing-key-file={K8S_SSL_PATH}/ca-key.pem
+    - --leader-elect=true
+    - --service-account-private-key-file={K8S_SSL_PATH}/apiserver-key.pem
+    - --root-ca-file={K8S_SSL_PATH}/ca.pem
+    - --kubeconfig={K8S_BASE_PATH}/controller-manager.yaml
+    - --tls-cert-file={K8S_SSL_PATH}/controller-manager.pem
+    - --tls-private-key-file={K8S_SSL_PATH}/controller-manager-key.pem
+    image: gcr.io/google-containers/hyperkube:{K8S_VERSION}
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 8
+      httpGet:
+        host: {HOST_IP}
+        path: /healthz
+        port: 10252
+        scheme: HTTP
+      initialDelaySeconds: 15
+      timeoutSeconds: 15
+    name: kube-controller-manager
+    resources:
+      requests:
+        cpu: 200m
+    volumeMounts:
+    - mountPath: /etc/ssl/certs
+      name: ca-certs
+      readOnly: true
+    - mountPath: {K8S_SSL_PATH}
+      name: k8s-certs
+      readOnly: true
+    - mountPath: {K8S_BASE_PATH}/controller-manager.yaml
+      name: kubeconfig
+      readOnly: true
+      readOnly: true
+  hostNetwork: true
+  priorityClassName: system-cluster-critical
+  volumes:
+  - hostPath:
+      path: /etc/ssl/certs
+      type: DirectoryOrCreate
+    name: ca-certs
+  - hostPath:
+      path: {K8S_SSL_PATH}
+      type: DirectoryOrCreate
+    name: k8s-certs
+  - hostPath:
+      path: {K8S_BASE_PATH}/controller-manager.yaml
+      type: FileOrCreate
+    name: kubeconfig

@@ -1,0 +1,37 @@
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+bindAddress: {HOST_IP}
+clientConnection:  
+  burst: 10
+  contentType: application/vnd.kubernetes.protobuf
+  kubeconfig: {K8S_BASE_PATH}/admin.yaml
+  qps: 5
+clusterCIDR: {POD_CIDR}
+configSyncPeriod: 15m0s
+conntrack:
+  maxPerCore: 32768
+  min: 131072
+  tcpCloseWaitTimeout: 1h0m0s
+  tcpEstablishedTimeout: 24h0m0s
+enableProfiling: false
+healthzBindAddress: {HOST_IP}:10256
+iptables:
+  masqueradeAll: false
+  masqueradeBit: 14
+  minSyncPeriod: 0s
+  syncPeriod: 30s
+ipvs:
+  excludeCIDRs: null
+  minSyncPeriod: 0s
+  strictARP: false
+  syncPeriod: 30s
+  tcpFinTimeout: 0s
+  tcpTimeout: 0s
+  udpTimeout: 0s
+kind: KubeProxyConfiguration
+metricsBindAddress: {HOST_IP}:10249
+mode: iptables
+nodePortAddresses: null
+oomScoreAdj: -999
+udpIdleTimeout: 250ms
+winkernel:
+  enableDSR: false

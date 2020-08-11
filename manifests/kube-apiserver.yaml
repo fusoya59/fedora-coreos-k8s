@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    component: kube-apiserver
+    tier: control-plane
+  name: kube-apiserver
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - kube-apiserver
+    - --advertise-address={HOST_IP}
+    - --allow-privileged=true
+    #- --authorization-mode=Node,RBAC
+    - --client-ca-file={K8S_SSL_PATH}/ca.pem
+    - --enable-admission-plugins=NodeRestriction
+    - --enable-bootstrap-token-auth=true
+    - --etcd-servers={ETCD_ENDPOINTS}
+    - --insecure-port=0
+    - --kubelet-client-certificate={K8S_SSL_PATH}/kubelet.pem
+    - --kubelet-client-key={K8S_SSL_PATH}/kubelet-key.pem
+    - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+    - --proxy-client-cert-file={K8S_SSL_PATH}/front-proxy-client.pem
+    - --proxy-client-key-file={K8S_SSL_PATH}/front-proxy-client-key.pem
+    - --requestheader-allowed-names=front-proxy-client
+    - --requestheader-client-ca-file={K8S_SSL_PATH}/ca.pem
+    - --requestheader-extra-headers-prefix=X-Remote-Extra-
+    - --requestheader-group-headers=X-Remote-Group
+    - --requestheader-username-headers=X-Remote-User
+    - --secure-port=6443
+    - --service-account-key-file={K8S_SSL_PATH}/apiserver-key.pem
+    - --service-cluster-ip-range={SERVICE_CIDR}
+    - --tls-cert-file={K8S_SSL_PATH}/apiserver.pem
+    - --tls-private-key-file={K8S_SSL_PATH}/apiserver-key.pem
+    image: gcr.io/google-containers/hyperkube:{K8S_VERSION}
+    imagePullPolicy: IfNotPresent
+    #livenessProbe:
+    #  failureThreshold: 8
+    #  httpGet:
+    #    host: {HOST_IP}
+    #    path: /healthz
+    #    port: 6443
+    #    scheme: HTTPS
+    #  initialDelaySeconds: 15
+    #  timeoutSeconds: 15
+    name: kube-apiserver
+    resources:
+      requests:
+        cpu: 250m
+    volumeMounts:
+    - mountPath: /etc/ssl/certs
+      name: ca-certs
+      readOnly: true
+    - mountPath: {K8S_SSL_PATH}
+      name: k8s-certs
+      readOnly: true
+  hostNetwork: true
+  priorityClassName: system-cluster-critical
+  volumes:
+  - hostPath:
+      path: /etc/ssl/certs
+      type: DirectoryOrCreate
+    name: ca-certs
+  - hostPath:
+      path: {K8S_SSL_PATH}
+      type: DirectoryOrCreate
+    name: k8s-certs
