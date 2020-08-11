@@ -39,7 +39,7 @@ Try getting the nodes in the cluster:
 $ kubectl get nodes
 ```
 
-## Build for master node
+## Build for worker node
 Same steps. Clone repo:
 ```
 $ git clone https://github.com/fusoya59/fedora-coreos-k8s
