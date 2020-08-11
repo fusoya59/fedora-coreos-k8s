@@ -3,7 +3,7 @@ host_name=${HOST_NAME_OVERRIDE:-$(hostname | awk '{print tolower($0)}')}
 host_ip=${HOST_IP_OVERRIDE:-$(ifconfig $(route | grep '^default' | grep -o '[^ ]*$') | awk '/inet / {print $2}')}
 user=$1
 
-if [ -z "$user"]; then
+if [ -z "$user" ]; then
   echo "user name not provided. e.g. sudo ./build.sh myuser"
   exit 1
 fi

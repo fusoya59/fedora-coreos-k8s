@@ -26,7 +26,7 @@ $ sudo ./build-master.sh fusoya59
 ## Deploy master node
 Deploy the files:
 ```
-$ sudo ./deploy-master.sh
+$ sudo ./deploy-master.sh fusoya59
 ```
 
 Wait a minute or two for the entire process to bootstrap properly. After that
@@ -54,7 +54,7 @@ $ sudo ./build-worker.sh fusoya59 10.0.10.100
 ## Deploy worker node
 Deploy the files:
 ```
-$ sudo ./deploy-master.sh
+$ sudo ./deploy-worker.sh fusoya59 10.0.10.100
 ```
 
 Log back into master. Check that the node was added:

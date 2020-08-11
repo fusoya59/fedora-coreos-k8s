@@ -4,8 +4,14 @@ og_dir=$(pwd)
 out_dir=./out
 kube_dir=/etc/kubernetes
 cni_dir=/etc/cni/net.d
-owner=${1:-tempadmin}
+user=$1
 host_ip=${2-$(ifconfig $(route | grep '^default' | grep -o '[^ ]*$') | awk '/inet / {print $2}')}
+
+if [ -z "$user" ]; then
+  echo "user name not provided. e.g. sudo ./deploy-master.sh myuser"
+  exit 1
+fi
+
 
 cd $out_dir
 
